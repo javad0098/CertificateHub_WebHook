@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: certificate-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: certificateservice
+  template:
+    metadata:
+      labels:
+        app: certificateservice
+    spec:
+      containers:
+      - name: certificateservice
+        image: javad0098/certificateservice:latest
+
+        # ClusterIP Service for internal communication 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: certificates-clusterip-srv
+spec:
+  type: ClusterIP
+  selector:
+    app: certificateservice
+  ports:
+    - name: certificate-service  # Named port for internal reference
+      protocol: TCP
+      port: 8080         # ClusterIP port for internal communication
+      targetPort: 8080    # The port the container listens on
+    - name: certificategrpc  # Named port for certificateService
+      protocol: TCP
+      port: 777         # ClusterIP port for internal communication
+      targetPort: 777    # The port the container listens on
